@@ -1,0 +1,66 @@
+;
+; WdmFileDedupeMinifilter.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=ActivityMonitor
+ClassGuid={b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}
+Provider=%Trojplosnik%
+DriverVer=04/19/2025,1.0.0.0
+CatalogFile=WdmFileDedupeMinifilter.cat
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12 ; System32\drivers
+WdmFileDedupeMinifilter.CopyFiles = 12
+
+[SourceDisksNames]
+1 = %DiskName%,,,
+
+[SourceDisksFiles]
+WdmFileDedupeMinifilter.sys = 1,,
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$.10.0...16299
+
+[Standard.NT$ARCH$.10.0...16299]
+%WdmFileDedupeMinifilter.ServiceDesc% = WdmFileDedupeMinifilter_Install, FltMgr\WdmFileDedupeMinifilter
+
+;================ Installation Section ================
+
+[WdmFileDedupeMinifilter_Install]
+CopyFiles = WdmFileDedupeMinifilter.CopyFiles
+AddReg    = WdmFileDedupeMinifilter.AddReg
+
+[WdmFileDedupeMinifilter.CopyFiles]
+WdmFileDedupeMinifilter.sys
+
+[WdmFileDedupeMinifilter.AddReg]
+HKR,,"DebugLevel",0x00010001,0
+HKR,,"StartType",0x00010001,0
+
+[WdmFileDedupeMinifilter_Install.Services]
+AddService = WdmFileDedupeMinifilter,0x00000002,WdmFileDedupeMinifilter_ServiceInstall
+
+[WdmFileDedupeMinifilter_ServiceInstall]
+DisplayName    = %WdmFileDedupeMinifilter.ServiceDesc%
+ServiceType    = 2 ; SERVICE_FILE_SYSTEM_DRIVER
+StartType      = 3 ; SERVICE_DEMAND_START
+ErrorControl   = 1 ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\WdmFileDedupeMinifilter.sys
+LoadOrderGroup = "FSFilter Activity Monitor"
+AddReg         = WdmFileDedupeMinifilter.AddRegInstances
+
+[WdmFileDedupeMinifilter.AddRegInstances]
+HKR,"Instances","DefaultInstance",0x00000000,"WdmFileDedupeMinifilter Instance"
+HKR,"Instances\WdmFileDedupeMinifilter Instance","Altitude",0x00000000,"360000"
+HKR,"Instances\WdmFileDedupeMinifilter Instance","Flags",0x00010001,0
+
+;================ Strings Section =====================
+
+[Strings]
+Trojplosnik="Trojplosnik"
+ManufacturerName="Trojplosnik"
+DiskName="WdmFileDedupeMinifilter Source Disk"
+WdmFileDedupeMinifilter.ServiceDesc = "Wdm File Dedupe MiniFilter Driver"
