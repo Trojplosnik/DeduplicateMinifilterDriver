@@ -1,15 +1,14 @@
-#include "DedupFilter.h"
+п»ї#include "DedupFilter.h"
 
 PFLT_FILTER g_FilterHandle = NULL;
 
-
-// Регистрация фильтра  
+// Р РµРіРёСЃС‚СЂР°С†РёСЏ С„РёР»СЊС‚СЂР°  
 CONST FLT_REGISTRATION FilterRegistration = {
-    sizeof(FLT_REGISTRATION),        // Размер структуры
-    FLT_REGISTRATION_VERSION,        // Версия
-    0,                               // Флаги
-    NULL,                            // Contexts (пока не используются)
-    Callbacks,                       // Операции
+    sizeof(FLT_REGISTRATION),        // Р Р°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹
+    FLT_REGISTRATION_VERSION,        // Р’РµСЂСЃРёСЏ
+    0,                               // Р¤Р»Р°РіРё
+    NULL,                            // Contexts (РїРѕРєР° РЅРµ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ)
+    Callbacks,                       // РћРїРµСЂР°С†РёРё
     DriverUnload,                    // FilterUnload
     DriverLoad,                      // InstanceSetup
     NULL,                            // InstanceQueryTeardown
@@ -32,24 +31,24 @@ DriverEntry(
 
     DbgPrint("[MYDRIVER] MiniFilter: Started.\n");
 
-    // Инициализация мьютекса кэша директорий (если есть)
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјСЊСЋС‚РµРєСЃР° РєСЌС€Р° РґРёСЂРµРєС‚РѕСЂРёР№ (РµСЃР»Рё РµСЃС‚СЊ)
     ExInitializeFastMutex(&g_HashCacheMutex);
 
-    // Инициализация таблицы хэшей
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С‚Р°Р±Р»РёС†С‹ С…СЌС€РµР№
     status = InitializeHashTable();
     if (!NT_SUCCESS(status)) {
         DbgPrint("[MYDRIVER] Failed to initialize hash table.\n");
         return status;
     }
 
-    // Инициализация директорий
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РґРёСЂРµРєС‚РѕСЂРёР№
     status = InitializeWatchedDirectories();
     if (!NT_SUCCESS(status)) {
         CleanupHashTable();
         return status;
     }
 
-    // Регистрация фильтра
+    // Р РµРіРёСЃС‚СЂР°С†РёСЏ С„РёР»СЊС‚СЂР°
     status = FltRegisterFilter(DriverObject, &FilterRegistration, &g_FilterHandle);
     if (!NT_SUCCESS(status)) {
         DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL,
@@ -58,7 +57,7 @@ DriverEntry(
         return status;
     }
 
-    // Запуск фильтрации
+    // Р—Р°РїСѓСЃРє С„РёР»СЊС‚СЂР°С†РёРё
     status = FltStartFiltering(g_FilterHandle);
     if (!NT_SUCCESS(status)) {
         DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL,
@@ -107,10 +106,10 @@ DriverUnload(
         g_FilterHandle = NULL;
     }
 
-    // Очистка таблицы хэшей
+    // РћС‡РёСЃС‚РєР° С‚Р°Р±Р»РёС†С‹ С…СЌС€РµР№
     CleanupHashTable();
 
-    // Очистка директорий, если нужно
+    // РћС‡РёСЃС‚РєР° РґРёСЂРµРєС‚РѕСЂРёР№, РµСЃР»Рё РЅСѓР¶РЅРѕ
     g_WatchedDirectoryCount = 0;
 
     DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL, "[MYDRIVER] MiniFilter: Unload.\n");

@@ -1,4 +1,4 @@
-#include "DedupFilter.h"
+ï»¿#include "DedupFilter.h"
 
 FAST_MUTEX g_HashCacheMutex;
 WATCHED_DIRECTORY g_WatchedDirectories[MAX_WATCHED_DIRS];
@@ -7,7 +7,7 @@ ULONG g_WatchedDirectoryCount = 0;
 CONST FLT_OPERATION_REGISTRATION Callbacks[] = {
 
 
-    // IRP_MJ_SET_INFORMATION - óäàëåíèÿ, ïåðåèìåíîâàíèÿ, ïåðåìåùåíèÿ
+    // IRP_MJ_SET_INFORMATION - ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ñ, Ð¿ÐµÑ€ÐµÐ¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð½Ð¸Ñ, Ð¿ÐµÑ€ÐµÐ¼ÐµÑ‰ÐµÐ½Ð¸Ñ
     {
         IRP_MJ_SET_INFORMATION,
         0,                                    // Flags
@@ -15,7 +15,7 @@ CONST FLT_OPERATION_REGISTRATION Callbacks[] = {
         NULL            
     },
 
-    // Çàâåðøàþùèé ýëåìåíò ìàññèâà
+    // Ð—Ð°Ð²ÐµÑ€ÑˆÐ°ÑŽÑ‰Ð¸Ð¹ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚ Ð¼Ð°ÑÑÐ¸Ð²Ð°
     {
         IRP_MJ_OPERATION_END
     }
@@ -23,7 +23,7 @@ CONST FLT_OPERATION_REGISTRATION Callbacks[] = {
 
 
 //==============================================================================
-// CALLBACK ÔÓÍÊÖÈÈ
+// CALLBACK Ð¤Ð£ÐÐšÐ¦Ð˜Ð˜
 //==============================================================================
 
 
@@ -43,7 +43,7 @@ FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
 
     infoClass = Data->Iopb->Parameters.SetFileInformation.FileInformationClass;
 
-    // Îáðàáàòûâàåì òîëüêî íóæíûå îïåðàöèè
+    // ÐžÐ±Ñ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð½ÑƒÐ¶Ð½Ñ‹Ðµ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸
     if (infoClass != FileRenameInformation &&
         infoClass != FileRenameInformationEx &&
         infoClass != FileLinkInformation &&
@@ -52,7 +52,7 @@ FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
         return FLT_PREOP_SUCCESS_NO_CALLBACK;
     }
 
-    // Ïîëó÷åíèå èñõîäíîãî ïóòè ôàéëà
+    // ÐŸÐ¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ðµ Ð¸ÑÑ…Ð¾Ð´Ð½Ð¾Ð³Ð¾ Ð¿ÑƒÑ‚Ð¸ Ñ„Ð°Ð¹Ð»Ð°
     status = FltGetFileNameInformation(Data,
         FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_ALWAYS_ALLOW_CACHE_LOOKUP,
         &nameInfo);
@@ -67,14 +67,14 @@ FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
 
     BOOLEAN sourceInWatchedDir = IsPathInWatchedDirectory(&nameInfo->Name);
 
-    //// === ÎÁÐÀÁÎÒÊÀ ÓÄÀËÅÍÈß ===
+    //// === ÐžÐ‘Ð ÐÐ‘ÐžÐ¢ÐšÐ Ð£Ð”ÐÐ›Ð•ÐÐ˜Ð¯ ===
     //if (infoClass == FileDispositionInformation || infoClass == FileDispositionInformationEx) {
     //    if (sourceInWatchedDir && Data->Iopb->Parameters.SetFileInformation.InfoBuffer) {
     //        PFILE_DISPOSITION_INFORMATION dispInfo =
     //            (PFILE_DISPOSITION_INFORMATION)Data->Iopb->Parameters.SetFileInformation.InfoBuffer;
 
     //        if (dispInfo && dispInfo->DeleteFile) {
-    //            // Óäàëÿåì õýø èç òàáëèöû
+    //            // Ð£Ð´Ð°Ð»ÑÐµÐ¼ Ñ…ÑÑˆ Ð¸Ð· Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹
     //            status = RemoveHashFromTable(&nameInfo->Name);
     //            if (NT_SUCCESS(status)) {
     //                LogFileOperation(&nameInfo->Name, "DELETE FILE");
@@ -87,7 +87,7 @@ FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
     //    return FLT_PREOP_SUCCESS_NO_CALLBACK;
     //}
 
-    // === ÎÁÐÀÁÎÒÊÀ ÏÅÐÅÈÌÅÍÎÂÀÍÈß/ÏÅÐÅÌÅÙÅÍÈß ===
+    // === ÐžÐ‘Ð ÐÐ‘ÐžÐ¢ÐšÐ ÐŸÐ•Ð Ð•Ð˜ÐœÐ•ÐÐžÐ’ÐÐÐ˜Ð¯/ÐŸÐ•Ð Ð•ÐœÐ•Ð©Ð•ÐÐ˜Ð¯ ===
     if ((infoClass == FileRenameInformation || infoClass == FileRenameInformationEx) &&
         Data->Iopb->Parameters.SetFileInformation.InfoBuffer) {
 
@@ -97,7 +97,7 @@ FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
         if (renameInfo->FileNameLength > 0) {
             PFLT_FILE_NAME_INFORMATION newNameInfo = NULL;
 
-            // Ïîëó÷àåì ïóòü íàçíà÷åíèÿ
+            // ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ Ð¿ÑƒÑ‚ÑŒ Ð½Ð°Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ
             status = FltGetDestinationFileNameInformation(
                 Data->Iopb->TargetInstance,
                 Data->Iopb->TargetFileObject,
@@ -112,24 +112,22 @@ FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
                 if (NT_SUCCESS(status)) {
                     BOOLEAN destInWatchedDir = IsPathInWatchedDirectory(&newNameInfo->Name);
 
-                    // === ÏÅÐÅÌÅÙÅÍÈÅ Â ÎÒÑËÅÆÈÂÀÅÌÓÞ ÄÈÐÅÊÒÎÐÈÞ ===
+                    // === ÐŸÐ•Ð Ð•ÐœÐ•Ð©Ð•ÐÐ˜Ð• Ð’ ÐžÐ¢Ð¡Ð›Ð•Ð–Ð˜Ð’ÐÐ•ÐœÐ£Ð® Ð”Ð˜Ð Ð•ÐšÐ¢ÐžÐ Ð˜Ð® ===
                     if (!sourceInWatchedDir && destInWatchedDir) {
 
                             status = HashFileContentSHA256(
-                                FltObjects->Instance,    // Èñïîëüçóåì Instance èç FltObjects
-                                Data->Iopb->TargetFileObject,  // Ôàéë óæå îòêðûò ñèñòåìîé
+                                FltObjects->Instance,    // Ð˜ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÐ¼ Instance Ð¸Ð· FltObjects
+                                Data->Iopb->TargetFileObject,  // Ð¤Ð°Ð¹Ð» ÑƒÐ¶Ðµ Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚ ÑÐ¸ÑÑ‚ÐµÐ¼Ð¾Ð¹
                                 fileHash
-                            );
-        
-
+                            ); 
                         if (NT_SUCCESS(status)) {
-                            // Ïðîâåðÿåì íà äóáëèêàòû
+                            // ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼ Ð½Ð° Ð´ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ‚Ñ‹
                             RtlInitEmptyUnicodeString(&existingFilePath, existingFilePathBuffer,
                                 sizeof(existingFilePathBuffer));
                             NTSTATUS duplicateStatus = CheckForDuplicate(fileHash, &existingFilePath);
 
                             if (duplicateStatus != STATUS_NOT_FOUND) {
-                                // Áëîêèðóåì îïåðàöèþ - íàéäåí äóáëèêàò
+                                // Ð‘Ð»Ð¾ÐºÐ¸Ñ€ÑƒÐµÐ¼ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸ÑŽ - Ð½Ð°Ð¹Ð´ÐµÐ½ Ð´ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ‚
                                 DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_WARNING_LEVEL,
                                     "[DEDUP] BLOCKED: Duplicate move into watched dir\n"
                                     "  Target: %wZ\n  Existing: %ws\n",
@@ -144,7 +142,7 @@ FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
                                 return FLT_PREOP_COMPLETE;
                             }
                             else {
-                                // Äóáëèêàò íå íàéäåí, äîáàâëÿåì õýø â òàáëèöó
+                                // Ð”ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ‚ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½, Ð´Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼ Ñ…ÑÑˆ Ð² Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñƒ
                                 status = AddHashToTable(fileHash, &newNameInfo->Name);
                                 if (NT_SUCCESS(status)) {
                                     LogFileOperation(&newNameInfo->Name, "MOVE INTO WATCHED DIR");
@@ -164,9 +162,9 @@ FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
                                 &nameInfo->Name, status);
                         }
                     }
-                    // === ÏÅÐÅÌÅÙÅÍÈÅ ÈÇ ÎÒÑËÅÆÈÂÀÅÌÎÉ ÄÈÐÅÊÒÎÐÈÈ ===
+                    // === ÐŸÐ•Ð Ð•ÐœÐ•Ð©Ð•ÐÐ˜Ð• Ð˜Ð— ÐžÐ¢Ð¡Ð›Ð•Ð–Ð˜Ð’ÐÐ•ÐœÐžÐ™ Ð”Ð˜Ð Ð•ÐšÐ¢ÐžÐ Ð˜Ð˜ ===
                     else if (sourceInWatchedDir && !destInWatchedDir) {
-                        // Óäàëÿåì õýø èç òàáëèöû
+                        // Ð£Ð´Ð°Ð»ÑÐµÐ¼ Ñ…ÑÑˆ Ð¸Ð· Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹
                         status = RemoveHashFromTable(&nameInfo->Name);
                         if (NT_SUCCESS(status)) {
                             LogFileOperation(&nameInfo->Name, "MOVE FROM WATCHED DIR");
@@ -179,9 +177,9 @@ FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
                                 &nameInfo->Name, status);
                         }
                     }
-                    // === ÏÅÐÅÈÌÅÍÎÂÀÍÈÅ ÂÍÓÒÐÈ ÎÒÑËÅÆÈÂÀÅÌÎÉ ÄÈÐÅÊÒÎÐÈÈ ===
+                    // === ÐŸÐ•Ð Ð•Ð˜ÐœÐ•ÐÐžÐ’ÐÐÐ˜Ð• Ð’ÐÐ£Ð¢Ð Ð˜ ÐžÐ¢Ð¡Ð›Ð•Ð–Ð˜Ð’ÐÐ•ÐœÐžÐ™ Ð”Ð˜Ð Ð•ÐšÐ¢ÐžÐ Ð˜Ð˜ ===
                     else if (sourceInWatchedDir && destInWatchedDir) {
-                        // Èñïîëüçóåì Alternative âåðñèþ äëÿ õýøèðîâàíèÿ
+                        // Ð˜ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÐ¼ Alternative Ð²ÐµÑ€ÑÐ¸ÑŽ Ð´Ð»Ñ Ñ…ÑÑˆÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ
                             status = HashFileContentSHA256(
                                 FltObjects->Instance,
                                 Data->Iopb->TargetFileObject,
@@ -191,7 +189,7 @@ FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
 
 
                         if (NT_SUCCESS(status)) {
-                            // Óäàëÿåì ñòàðóþ çàïèñü è äîáàâëÿåì íîâóþ
+                            // Ð£Ð´Ð°Ð»ÑÐµÐ¼ ÑÑ‚Ð°Ñ€ÑƒÑŽ Ð·Ð°Ð¿Ð¸ÑÑŒ Ð¸ Ð´Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼ Ð½Ð¾Ð²ÑƒÑŽ
                             RemoveHashFromTable(&nameInfo->Name);
                             status = AddHashToTable(fileHash, &newNameInfo->Name);
                             if (NT_SUCCESS(status)) {

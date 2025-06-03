@@ -1,4 +1,4 @@
-#include "DedupFilter.h"
+п»ї#include "DedupFilter.h"
 
 BOOLEAN IsPathInWatchedDirectory(_In_ PUNICODE_STRING filePath)
 {
@@ -13,25 +13,25 @@ BOOLEAN IsPathInWatchedDirectory(_In_ PUNICODE_STRING filePath)
 
         UNICODE_STRING* dirPath = &g_WatchedDirectories[i].DirectoryPath;
 
-        // Проверяем корректность директории
+        // РџСЂРѕРІРµСЂСЏРµРј РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РґРёСЂРµРєС‚РѕСЂРёРё
         if (!dirPath->Buffer || dirPath->Length == 0) {
             continue;
         }
 
-        // Сравниваем как префикс (без учета регистра)
+        // РЎСЂР°РІРЅРёРІР°РµРј РєР°Рє РїСЂРµС„РёРєСЃ (Р±РµР· СѓС‡РµС‚Р° СЂРµРіРёСЃС‚СЂР°)
         if (RtlPrefixUnicodeString(dirPath, filePath, TRUE)) {
             USHORT dirLen = dirPath->Length / sizeof(WCHAR);
             USHORT fileLen = filePath->Length / sizeof(WCHAR);
 
-            // Проверяем корректность индекса перед доступом к буферу
+            // РџСЂРѕРІРµСЂСЏРµРј РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РёРЅРґРµРєСЃР° РїРµСЂРµРґ РґРѕСЃС‚СѓРїРѕРј Рє Р±СѓС„РµСЂСѓ
             if (dirLen >= fileLen) {
-                // Путь файла равен или короче пути директории
+                // РџСѓС‚СЊ С„Р°Р№Р»Р° СЂР°РІРµРЅ РёР»Рё РєРѕСЂРѕС‡Рµ РїСѓС‚Рё РґРёСЂРµРєС‚РѕСЂРёРё
                 if (filePath->Length == dirPath->Length) {
-                    return TRUE; // Точное совпадение
+                    return TRUE; // РўРѕС‡РЅРѕРµ СЃРѕРІРїР°РґРµРЅРёРµ
                 }
             }
             else {
-                // Проверяем, что следующий символ — разделитель пути
+                // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ СЃР»РµРґСѓСЋС‰РёР№ СЃРёРјРІРѕР» вЂ” СЂР°Р·РґРµР»РёС‚РµР»СЊ РїСѓС‚Рё
                 if (filePath->Buffer[dirLen] == L'\\') {
                     return TRUE;
                 }
@@ -44,7 +44,7 @@ BOOLEAN IsPathInWatchedDirectory(_In_ PUNICODE_STRING filePath)
 
 
 
-// Функция преобразования DOS пути в NT путь
+// Р¤СѓРЅРєС†РёСЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ DOS РїСѓС‚Рё РІ NT РїСѓС‚СЊ
 NTSTATUS ConvertDosPathToNtPath(
     _In_ PUNICODE_STRING DosPath,
     _Out_ PUNICODE_STRING NtPath,
@@ -64,29 +64,29 @@ NTSTATUS ConvertDosPathToNtPath(
     ULONG totalLength;
     ULONG ntDeviceLength;
 
-    // Проверка входных параметров
+    // РџСЂРѕРІРµСЂРєР° РІС…РѕРґРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ
     if (!DosPath || !NtPath || !NtPathBuffer || BufferSize < (sizeof(WCHAR)) * 4) {
         return STATUS_INVALID_PARAMETER;
     }
 
-    // Проверка минимальной длины для DOS пути (например, "C:\")
+    // РџСЂРѕРІРµСЂРєР° РјРёРЅРёРјР°Р»СЊРЅРѕР№ РґР»РёРЅС‹ РґР»СЏ DOS РїСѓС‚Рё (РЅР°РїСЂРёРјРµСЂ, "C:\")
     if (DosPath->Length < 6 || !DosPath->Buffer) {
         return STATUS_INVALID_PARAMETER;
     }
 
-    // Проверка формата DOS пути (X:\...)
+    // РџСЂРѕРІРµСЂРєР° С„РѕСЂРјР°С‚Р° DOS РїСѓС‚Рё (X:\...)
     if (DosPath->Buffer[1] != L':' || DosPath->Buffer[2] != L'\\') {
         return STATUS_INVALID_PARAMETER;
     }
 
-    // Проверка корректности буквы диска
+    // РџСЂРѕРІРµСЂРєР° РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚Рё Р±СѓРєРІС‹ РґРёСЃРєР°
     WCHAR driveLetter = DosPath->Buffer[0];
     if (!((driveLetter >= L'A' && driveLetter <= L'Z') ||
         (driveLetter >= L'a' && driveLetter <= L'z'))) {
         return STATUS_INVALID_PARAMETER;
     }
 
-    // Формирование имени DOS устройства "\??\C:"
+    // Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РёРјРµРЅРё DOS СѓСЃС‚СЂРѕР№СЃС‚РІР° "\??\C:"
     dosDeviceBuffer[0] = L'\\';
     dosDeviceBuffer[1] = L'?';
     dosDeviceBuffer[2] = L'?';
@@ -97,7 +97,7 @@ NTSTATUS ConvertDosPathToNtPath(
 
     RtlInitUnicodeString(&dosDeviceName, dosDeviceBuffer);
 
-    // Открытие символической ссылки
+    // РћС‚РєСЂС‹С‚РёРµ СЃРёРјРІРѕР»РёС‡РµСЃРєРѕР№ СЃСЃС‹Р»РєРё
     InitializeObjectAttributes(
         &objectAttributes,
         &dosDeviceName,
@@ -116,7 +116,7 @@ NTSTATUS ConvertDosPathToNtPath(
         return status;
     }
 
-    // Получение целевого пути символической ссылки
+    // РџРѕР»СѓС‡РµРЅРёРµ С†РµР»РµРІРѕРіРѕ РїСѓС‚Рё СЃРёРјРІРѕР»РёС‡РµСЃРєРѕР№ СЃСЃС‹Р»РєРё
     ntDeviceName.Buffer = ntDeviceBuffer;
     ntDeviceName.Length = 0;
     ntDeviceName.MaximumLength = sizeof(ntDeviceBuffer);
@@ -133,24 +133,24 @@ NTSTATUS ConvertDosPathToNtPath(
         return status;
     }
 
-    // Вычисление длины пути после буквы диска (начиная с '\')
-    pathOffset = 3 * sizeof(WCHAR); // Пропускаем "C:\"
+    // Р’С‹С‡РёСЃР»РµРЅРёРµ РґР»РёРЅС‹ РїСѓС‚Рё РїРѕСЃР»Рµ Р±СѓРєРІС‹ РґРёСЃРєР° (РЅР°С‡РёРЅР°СЏ СЃ '\')
+    pathOffset = 3 * sizeof(WCHAR); // РџСЂРѕРїСѓСЃРєР°РµРј "C:\"
     dosDeviceLength = DosPath->Length - pathOffset;
     ntDeviceLength = ntDeviceName.Length;
 
-    // Вычисление общей длины: NT путь + '\' + оставшаяся часть DOS пути + null terminator
+    // Р’С‹С‡РёСЃР»РµРЅРёРµ РѕР±С‰РµР№ РґР»РёРЅС‹: NT РїСѓС‚СЊ + '\' + РѕСЃС‚Р°РІС€Р°СЏСЃСЏ С‡Р°СЃС‚СЊ DOS РїСѓС‚Рё + null terminator
     totalLength = ntDeviceLength + sizeof(WCHAR) + dosDeviceLength + sizeof(WCHAR);
     if (BufferSize < totalLength) {
         return STATUS_BUFFER_TOO_SMALL;
     }
 
-    // Копируем префикс NT пути
+    // РљРѕРїРёСЂСѓРµРј РїСЂРµС„РёРєСЃ NT РїСѓС‚Рё
     RtlCopyMemory(NtPathBuffer, ntDeviceName.Buffer, ntDeviceLength);
 
-    // Добавляем обратный слэш между префиксом и оставшейся частью пути
+    // Р”РѕР±Р°РІР»СЏРµРј РѕР±СЂР°С‚РЅС‹Р№ СЃР»СЌС€ РјРµР¶РґСѓ РїСЂРµС„РёРєСЃРѕРј Рё РѕСЃС‚Р°РІС€РµР№СЃСЏ С‡Р°СЃС‚СЊСЋ РїСѓС‚Рё
     NtPathBuffer[ntDeviceLength / sizeof(WCHAR)] = L'\\';
 
-    // Копируем оставшуюся часть пути после "C:\"
+    // РљРѕРїРёСЂСѓРµРј РѕСЃС‚Р°РІС€СѓСЋСЃСЏ С‡Р°СЃС‚СЊ РїСѓС‚Рё РїРѕСЃР»Рµ "C:\"
     if (dosDeviceLength > 0) {
         RtlCopyMemory(
             (PUCHAR)NtPathBuffer + ntDeviceLength + sizeof(WCHAR),
@@ -159,7 +159,7 @@ NTSTATUS ConvertDosPathToNtPath(
         );
     }
 
-    // Добавляем завершающий null-терминатор
+    // Р”РѕР±Р°РІР»СЏРµРј Р·Р°РІРµСЂС€Р°СЋС‰РёР№ null-С‚РµСЂРјРёРЅР°С‚РѕСЂ
     ULONG totalChars = (ntDeviceLength / sizeof(WCHAR)) + 1 + (dosDeviceLength / sizeof(WCHAR));
     if (totalChars >= (BufferSize / sizeof(WCHAR))) {
         return STATUS_BUFFER_TOO_SMALL;
@@ -168,7 +168,7 @@ NTSTATUS ConvertDosPathToNtPath(
     // Fix: Ensure the buffer is accessed within bounds
     NtPathBuffer[BufferSize / sizeof(WCHAR) - 1] = L'\0';
 
-    // Инициализируем UNICODE_STRING
+    // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј UNICODE_STRING
     NtPath->Buffer = NtPathBuffer;
     NtPath->Length = (USHORT)(totalChars * sizeof(WCHAR));
     NtPath->MaximumLength = (USHORT)BufferSize;
@@ -176,14 +176,13 @@ NTSTATUS ConvertDosPathToNtPath(
     return STATUS_SUCCESS;
 }
 
-
 VOID LogFileOperation(_In_ PUNICODE_STRING FilePath, _In_ PCSTR OperationType)
 {
     if (!FilePath || !OperationType) {
         return;
     }
 
-    // Проверяем корректность UNICODE_STRING
+    // РџСЂРѕРІРµСЂСЏРµРј РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ UNICODE_STRING
     if (!FilePath->Buffer || FilePath->Length == 0) {
         DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL,
             "[WdmFileDedupe] %s: <Invalid path>\n", OperationType);

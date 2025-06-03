@@ -1,4 +1,4 @@
-#include "HashTable.h"
+ï»¿#include "HashTable.h"
 
 #define ROTRIGHT(a,b) (((a) >> (b)) | ((a) << (32-(b))))
 #define CH(x,y,z) (((x) & (y)) ^ (~(x) & (z)))
@@ -131,7 +131,7 @@ _Out_writes_(SHA256_HASH_SIZE) UCHAR Hash[SHA256_HASH_SIZE]
         return STATUS_INVALID_PARAMETER;
     }
 
-    // Çàùèòà îò ðåêóðñèè
+    // Ð—Ð°Ñ‰Ð¸Ñ‚Ð° Ð¾Ñ‚ Ñ€ÐµÐºÑƒÑ€ÑÐ¸Ð¸
     if (InterlockedCompareExchange(&g_HashingInProgress, 1, 0) != 0) {
         return STATUS_UNSUCCESSFUL;
     }
@@ -180,6 +180,5 @@ _Out_writes_(SHA256_HASH_SIZE) UCHAR Hash[SHA256_HASH_SIZE]
         }
         InterlockedExchange(&g_HashingInProgress, 0);
     }
-
     return status;
 }

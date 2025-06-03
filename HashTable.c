@@ -1,7 +1,7 @@
-#include "HashTable.h"
+п»ї#include "HashTable.h"
 
 //==============================================================================
-// ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+// Р“Р›РћР‘РђР›Р¬РќР«Р• РџР•Р Р•РњР•РќРќР«Р•
 //==============================================================================
 
 FAST_MUTEX g_HashTableMutex;
@@ -10,7 +10,7 @@ ULONG g_HashTableCount = 0;
 BOOLEAN g_HashTableInitialized = FALSE;
 
 //==============================================================================
-// ФУНКЦИИ ХЭШТАБЛИЦЫ
+// Р¤РЈРќРљР¦РР РҐР­РЁРўРђР‘Р›РР¦Р«
 //==============================================================================
 
 NTSTATUS InitializeHashTable(VOID)
@@ -19,10 +19,10 @@ NTSTATUS InitializeHashTable(VOID)
         return STATUS_SUCCESS;
     }
 
-    // Инициализируем мьютекс
+    // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РјСЊСЋС‚РµРєСЃ
     ExInitializeFastMutex(&g_HashTableMutex);
 
-    // Очищаем таблицу
+    // РћС‡РёС‰Р°РµРј С‚Р°Р±Р»РёС†Сѓ
     RtlZeroMemory(g_HashTable, sizeof(g_HashTable));
     g_HashTableCount = 0;
 
@@ -42,7 +42,7 @@ VOID CleanupHashTable(VOID)
 
     ExAcquireFastMutex(&g_HashTableMutex);
 
-    // Освобождаем все выделенные строки путей
+    // РћСЃРІРѕР±РѕР¶РґР°РµРј РІСЃРµ РІС‹РґРµР»РµРЅРЅС‹Рµ СЃС‚СЂРѕРєРё РїСѓС‚РµР№
     for (ULONG i = 0; i < g_HashTableCount; i++) {
         if (g_HashTable[i].FilePath.Buffer != NULL) {
             ExFreePoolWithTag(g_HashTable[i].FilePath.Buffer, 'hPth');
@@ -52,7 +52,7 @@ VOID CleanupHashTable(VOID)
         }
     }
 
-    // Очищаем всю таблицу
+    // РћС‡РёС‰Р°РµРј РІСЃСЋ С‚Р°Р±Р»РёС†Сѓ
     RtlZeroMemory(g_HashTable, sizeof(g_HashTable));
     g_HashTableCount = 0;
 
@@ -96,7 +96,7 @@ NTSTATUS CheckForDuplicate(
 
     for (ULONG i = 0; i < g_HashTableCount; i++) {
         if (CompareHashes(g_HashTable[i].FileHash, Hash)) {
-            // Возвращаем путь, если нужно
+            // Р’РѕР·РІСЂР°С‰Р°РµРј РїСѓС‚СЊ, РµСЃР»Рё РЅСѓР¶РЅРѕ
             if (FoundFilePath && FoundFilePath->Buffer && FoundFilePath->MaximumLength > 0) {
                 USHORT copyLength = min(g_HashTable[i].FilePath.Length,
                     FoundFilePath->MaximumLength - sizeof(WCHAR));
@@ -151,7 +151,7 @@ NTSTATUS AddHashToTable(
     DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL,
 		"[DEDUP] AddHashToTable: No duplicate found\n");
 
-    // Проверяем, есть ли место для новой записи
+    // РџСЂРѕРІРµСЂСЏРµРј, РµСЃС‚СЊ Р»Рё РјРµСЃС‚Рѕ РґР»СЏ РЅРѕРІРѕР№ Р·Р°РїРёСЃРё
     if (g_HashTableCount >= MAX_HASH_ENTRIES) {
         ExReleaseFastMutex(&g_HashTableMutex);
         DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_ERROR_LEVEL,
@@ -164,7 +164,7 @@ NTSTATUS AddHashToTable(
 
     DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL,
         "[DEDUP] IRQL before ExAllocatePool2: %lu\n", KeGetCurrentIrql());
-    // Выделяем память для пути
+    // Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ РїСѓС‚Рё
     pathBuffer = (PWCHAR)ExAllocatePool2(POOL_FLAG_NON_PAGED, pathBufferSize, 'hPth');
 
     if (!pathBuffer) {
@@ -177,7 +177,7 @@ NTSTATUS AddHashToTable(
     DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL,
 		"[DEDUP] AddHashToTable: Memory allocated for path, size: %lu\n", pathBufferSize);
 
-    // Копируем данные в новую запись
+    // РљРѕРїРёСЂСѓРµРј РґР°РЅРЅС‹Рµ РІ РЅРѕРІСѓСЋ Р·Р°РїРёСЃСЊ
     RtlCopyMemory(pathBuffer, FilePath->Buffer, FilePath->Length);
     pathBuffer[FilePath->Length / sizeof(WCHAR)] = L'\0';
 
@@ -215,18 +215,18 @@ NTSTATUS RemoveHashFromTable(_In_ PUNICODE_STRING FilePath)
 
     for (ULONG i = 0; i < g_HashTableCount; i++) {
         if (RtlEqualUnicodeString(&g_HashTable[i].FilePath, FilePath, TRUE)) {
-            // Освобождаем память пути
+            // РћСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ РїСѓС‚Рё
             if (g_HashTable[i].FilePath.Buffer) {
                 ExFreePoolWithTag(g_HashTable[i].FilePath.Buffer, 'hPth');
             }
 
-            // Сдвигаем все последующие записи
+            // РЎРґРІРёРіР°РµРј РІСЃРµ РїРѕСЃР»РµРґСѓСЋС‰РёРµ Р·Р°РїРёСЃРё
             if (i < g_HashTableCount - 1) {
                 RtlMoveMemory(&g_HashTable[i], &g_HashTable[i + 1],
                     (g_HashTableCount - i - 1) * sizeof(HASH_ENTRY));
             }
 
-            // Очищаем последний элемент
+            // РћС‡РёС‰Р°РµРј РїРѕСЃР»РµРґРЅРёР№ СЌР»РµРјРµРЅС‚
             g_HashTableCount--;
             RtlZeroMemory(&g_HashTable[g_HashTableCount], sizeof(HASH_ENTRY));
 
@@ -260,18 +260,18 @@ NTSTATUS RemoveHashFromTableByHash(
     for (ULONG i = 0; i < g_HashTableCount; i++) {
         if (CompareHashes(g_HashTable[i].FileHash, Hash)) {
 
-            // Освобождаем память пути
+            // РћСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ РїСѓС‚Рё
             if (g_HashTable[i].FilePath.Buffer) {
                 ExFreePoolWithTag(g_HashTable[i].FilePath.Buffer, 'hPth');
             }
 
-            // Сдвигаем все последующие записи
+            // РЎРґРІРёРіР°РµРј РІСЃРµ РїРѕСЃР»РµРґСѓСЋС‰РёРµ Р·Р°РїРёСЃРё
             if (i < g_HashTableCount - 1) {
                 RtlMoveMemory(&g_HashTable[i], &g_HashTable[i + 1],
                     (g_HashTableCount - i - 1) * sizeof(HASH_ENTRY));
             }
 
-            // Очищаем последний элемент
+            // РћС‡РёС‰Р°РµРј РїРѕСЃР»РµРґРЅРёР№ СЌР»РµРјРµРЅС‚
             g_HashTableCount--;
             RtlZeroMemory(&g_HashTable[g_HashTableCount], sizeof(HASH_ENTRY));
 
