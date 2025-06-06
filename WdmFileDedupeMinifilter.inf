@@ -1,4 +1,4 @@
-;
+﻿;
 ; WdmFileDedupeMinifilter.inf
 ;
 
@@ -27,8 +27,6 @@ WdmFileDedupeMinifilter.sys = 1,,
 [Standard.NT$ARCH$.10.0...16299]
 %WdmFileDedupeMinifilter.ServiceDesc% = WdmFileDedupeMinifilter_Install, FltMgr\WdmFileDedupeMinifilter
 
-;================ Installation Section ================
-
 [WdmFileDedupeMinifilter_Install]
 CopyFiles = WdmFileDedupeMinifilter.CopyFiles
 AddReg    = WdmFileDedupeMinifilter.AddReg
@@ -56,8 +54,6 @@ AddReg         = WdmFileDedupeMinifilter.AddRegInstances
 HKR,"Instances","DefaultInstance",0x00000000,"WdmFileDedupeMinifilter Instance"
 HKR,"Instances\WdmFileDedupeMinifilter Instance","Altitude",0x00000000,"360000"
 HKR,"Instances\WdmFileDedupeMinifilter Instance","Flags",0x00010001,0
-
-;================ Strings Section =====================
 
 [Strings]
 Trojplosnik="Trojplosnik"

@@ -1,30 +1,16 @@
 ﻿#include "DedupFilter.h"
 
-FAST_MUTEX g_HashCacheMutex;
-WATCHED_DIRECTORY g_WatchedDirectories[MAX_WATCHED_DIRS];
-ULONG g_WatchedDirectoryCount = 0;
-
 CONST FLT_OPERATION_REGISTRATION Callbacks[] = {
-
-
-    // IRP_MJ_SET_INFORMATION - удаления, переименования, перемещения
     {
         IRP_MJ_SET_INFORMATION,
-        0,                                    // Flags
-        PreSetInformationCallback,            // PreOperation callback
+        0,                                    
+        PreSetInformationCallback,
         NULL            
     },
-
-    // Завершающий элемент массива
     {
         IRP_MJ_OPERATION_END
     }
 };
-
-
-//==============================================================================
-// CALLBACK ФУНКЦИИ
-//==============================================================================
 
 
 FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
@@ -67,27 +53,6 @@ FLT_PREOP_CALLBACK_STATUS PreSetInformationCallback(
 
     BOOLEAN sourceInWatchedDir = IsPathInWatchedDirectory(&nameInfo->Name);
 
-    //// === ОБРАБОТКА УДАЛЕНИЯ ===
-    //if (infoClass == FileDispositionInformation || infoClass == FileDispositionInformationEx) {
-    //    if (sourceInWatchedDir && Data->Iopb->Parameters.SetFileInformation.InfoBuffer) {
-    //        PFILE_DISPOSITION_INFORMATION dispInfo =
-    //            (PFILE_DISPOSITION_INFORMATION)Data->Iopb->Parameters.SetFileInformation.InfoBuffer;
-
-    //        if (dispInfo && dispInfo->DeleteFile) {
-    //            // Удаляем хэш из таблицы
-    //            status = RemoveHashFromTable(&nameInfo->Name);
-    //            if (NT_SUCCESS(status)) {
-    //                LogFileOperation(&nameInfo->Name, "DELETE FILE");
-    //                DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL,
-    //                    "[DEDUP] Removed hash for deleted file: %wZ\n", &nameInfo->Name);
-    //            }
-    //        }
-    //    }
-    //    FltReleaseFileNameInformation(nameInfo);
-    //    return FLT_PREOP_SUCCESS_NO_CALLBACK;
-    //}
-
-    // === ОБРАБОТКА ПЕРЕИМЕНОВАНИЯ/ПЕРЕМЕЩЕНИЯ ===
     if ((infoClass == FileRenameInformation || infoClass == FileRenameInformationEx) &&
         Data->Iopb->Parameters.SetFileInformation.InfoBuffer) {
 
