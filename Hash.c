@@ -1,6 +1,9 @@
 ﻿#include "HashTable.h"
 
+// Макрос для циклического сдвига вправо на b бит.
 #define ROTRIGHT(a,b) (((a) >> (b)) | ((a) << (32-(b))))
+
+// Преобразования, определённые стандартом SHA-256, используемые при обработке блоков.
 #define CH(x,y,z) (((x) & (y)) ^ (~(x) & (z)))
 #define MAJ(x,y,z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
 #define EP0(x) (ROTRIGHT(x,2) ^ ROTRIGHT(x,13) ^ ROTRIGHT(x,22))
@@ -17,6 +20,7 @@ typedef struct {
 	UINT32 state[8];
 } SHA256_CTX;
 
+// 64 константы из стандарта SHA-256
 static const UINT32 k[64] = {
 	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,
 	0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
@@ -36,6 +40,7 @@ static const UINT32 k[64] = {
 	0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 };
 
+// Функция для преобразования блока данных SHA-256.
 static VOID SHA256Transform(SHA256_CTX* ctx, const UCHAR data[])
 {
 	UINT32 a, b, c, d, e, f, g, h, i, j, t1, t2, m[64];
@@ -63,6 +68,7 @@ static VOID SHA256Transform(SHA256_CTX* ctx, const UCHAR data[])
 	ctx->state[6] += g; ctx->state[7] += h;
 }
 
+// Инициализация контекста SHA-256.
 static VOID SHA256Init(SHA256_CTX* ctx)
 {
 	ctx->datalen = 0; ctx->bitlen = 0;
@@ -76,6 +82,7 @@ static VOID SHA256Init(SHA256_CTX* ctx)
 	ctx->state[7] = 0x5be0cd19;
 }
 
+// Обновление контекста SHA-256 с новыми данными.
 static VOID SHA256Update(SHA256_CTX* ctx, const UCHAR* data, SIZE_T len)
 {
 	for (SIZE_T i = 0; i < len; ++i) {
@@ -88,6 +95,7 @@ static VOID SHA256Update(SHA256_CTX* ctx, const UCHAR* data, SIZE_T len)
 	}
 }
 
+// Завершение вычисления хеша SHA-256 и получение итогового хеша.
 static VOID SHA256Final(SHA256_CTX* ctx, UCHAR hash[])
 {
 	ULONG i = ctx->datalen;
@@ -114,6 +122,7 @@ static VOID SHA256Final(SHA256_CTX* ctx, UCHAR hash[])
 	}
 }
 
+// Функция для поиска хеша SHA-256 по содержимому файла.
 NTSTATUS HashFileContentSHA256(
 	_In_ PFLT_INSTANCE Instance,
 	_In_ PFILE_OBJECT FileObject,

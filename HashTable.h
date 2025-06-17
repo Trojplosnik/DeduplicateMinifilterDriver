@@ -5,7 +5,7 @@
 
 // КОНСТАНТЫ
 #define SHA256_HASH_SIZE 32
-#define MAX_HASH_ENTRIES 1024
+#define MAX_HASH_ENTRIES 50000
 
 // Структура таблицы хэшей
 typedef struct _HASH_ENTRY {

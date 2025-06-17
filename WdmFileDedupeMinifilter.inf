@@ -1,5 +1,5 @@
 ﻿;
-; WdmFileDedupeMinifilter.inf
+; INF-файл установки драйвера MiniFilter WdmFileDedupeMinifilter
 ;
 
 [Version]
@@ -36,7 +36,6 @@ WdmFileDedupeMinifilter.sys
 
 [WdmFileDedupeMinifilter.AddReg]
 HKR,,"DebugLevel",0x00010001,0
-HKR,,"StartType",0x00010001,0
 
 [WdmFileDedupeMinifilter_Install.Services]
 AddService = WdmFileDedupeMinifilter,0x00000002,WdmFileDedupeMinifilter_ServiceInstall

@@ -91,7 +91,6 @@ DriverLoad(_In_ PCFLT_RELATED_OBJECTS  FltObjects,
 
 	if (firstLoad) {
 		firstLoad = FALSE;
-		DbgPrint("[WdmFileDedupe] Performing initial directory scan\n");
 
 		// Сканируем все отслеживаемые директории
 		for (ULONG i = 0; i < g_WatchedDirectoryCount; i++) {
@@ -103,6 +102,9 @@ DriverLoad(_In_ PCFLT_RELATED_OBJECTS  FltObjects,
 				}
 			}
 		}
+
+		// Логирование содержания таблицы хэшей перед началом работы
+		DumpHashTable();
 	}
 
 

@@ -1,5 +1,6 @@
 ﻿#include "DedupFilter.h"
 
+//Функция, которая проверяет, является ли директория отслеживаемой
 BOOLEAN IsPathInWatchedDirectory(_In_ PUNICODE_STRING filePath)
 {
 	if (!filePath || !filePath->Buffer || filePath->Length == 0) {
@@ -173,6 +174,7 @@ NTSTATUS ConvertDosPathToNtPath(
 	return STATUS_SUCCESS;
 }
 
+// Функция для логирования операций с файлами
 VOID LogFileOperation(_In_ PUNICODE_STRING FilePath, _In_ PCSTR OperationType)
 {
 	if (!FilePath || !OperationType) {
@@ -455,7 +457,7 @@ NTSTATUS ScanDirectoryAndAddHashes(
     ZwClose(directoryHandle);
 
     DbgPrintEx(DPFLTR_DEFAULT_ID, DPFLTR_INFO_LEVEL,
-        "[WdmFileDedupe] files in this directory have been hashed: %wZ\n", DirectoryPath);
+        "[WdmFileDedupe] This directory have been scuned: %wZ\n", DirectoryPath);
 
     return status;
 }

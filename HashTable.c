@@ -6,7 +6,7 @@ HASH_ENTRY g_HashTable[MAX_HASH_ENTRIES];
 ULONG g_HashTableCount = 0;
 BOOLEAN g_HashTableInitialized = FALSE;
 
-
+// Инициализация хэш-таблицы
 NTSTATUS InitializeHashTable(VOID)
 {
 	if (g_HashTableInitialized) {
@@ -28,6 +28,7 @@ NTSTATUS InitializeHashTable(VOID)
 	return STATUS_SUCCESS;
 }
 
+// Освобождение ресурсов хэш-таблицы
 VOID CleanupHashTable(VOID)
 {
 	if (!g_HashTableInitialized) {
@@ -58,6 +59,7 @@ VOID CleanupHashTable(VOID)
 		"[WdmFileDedupe] Hash table cleaned up\n");
 }
 
+// Сравнение двух хэш-значений
 BOOLEAN CompareHashes(
 	_In_reads_(SHA256_HASH_SIZE) const UCHAR Hash1[SHA256_HASH_SIZE],
 	_In_reads_(SHA256_HASH_SIZE) const UCHAR Hash2[SHA256_HASH_SIZE]
@@ -70,6 +72,7 @@ BOOLEAN CompareHashes(
 	return (RtlCompareMemory(Hash1, Hash2, SHA256_HASH_SIZE) == SHA256_HASH_SIZE);
 }
 
+// Проверка на дубликаты в хэш-таблице
 NTSTATUS CheckForDuplicate(
 	_In_reads_(SHA256_HASH_SIZE) const UCHAR Hash[SHA256_HASH_SIZE],
 	_Out_opt_ PUNICODE_STRING FoundFilePath
@@ -112,7 +115,7 @@ NTSTATUS CheckForDuplicate(
 	return STATUS_NOT_FOUND;
 }
 
-
+// Добавление хэша в таблицу
 NTSTATUS AddHashToTable(
 	_In_reads_(SHA256_HASH_SIZE) const UCHAR Hash[SHA256_HASH_SIZE],
 	_In_ PUNICODE_STRING FilePath
@@ -183,7 +186,7 @@ NTSTATUS AddHashToTable(
 	return STATUS_SUCCESS;
 }
 
-
+// Удаление хэша из таблицы
 NTSTATUS RemoveHashFromTable(_In_ PUNICODE_STRING FilePath)
 {
 	if (!FilePath || !FilePath->Buffer || FilePath->Length == 0) {
@@ -226,7 +229,7 @@ NTSTATUS RemoveHashFromTable(_In_ PUNICODE_STRING FilePath)
 	return STATUS_NOT_FOUND;
 }
 
-
+// Получение количества записей в хэш-таблице
 ULONG GetHashTableCount(VOID)
 {
 	if (!g_HashTableInitialized) {
@@ -240,6 +243,7 @@ ULONG GetHashTableCount(VOID)
 	return count;
 }
 
+// Вывод содержимого хэш-таблицы в отладочный вывод
 VOID DumpHashTable(VOID)
 {
 	if (!g_HashTableInitialized) {
